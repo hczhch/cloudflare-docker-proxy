@@ -1,3 +1,6 @@
+import SEARCH from './search.html'
+import DOCS from './help.html'
+
 addEventListener("fetch", (event) => {
   event.passThroughOnException();
   event.respondWith(handleRequest(event.request));
@@ -5,6 +8,7 @@ addEventListener("fetch", (event) => {
 
 const dockerHub = "https://registry-1.docker.io";
 
+// CUSTOM_DOMAIN 是项目的环境变量
 const routes = {
   // production
   ["docker." + CUSTOM_DOMAIN]: dockerHub,
@@ -15,6 +19,12 @@ const routes = {
   ["ghcr." + CUSTOM_DOMAIN]: "https://ghcr.io",
   ["cloudsmith." + CUSTOM_DOMAIN]: "https://docker.cloudsmith.io",
   ["ecr." + CUSTOM_DOMAIN]: "https://public.ecr.aws",
+  ['mcr.' + CUSTOM_DOMAIN]: 'https://mcr.microsoft.com',
+  ['elastic.' + CUSTOM_DOMAIN]: 'https://docker.elastic.co',
+  ['nvcr.' + CUSTOM_DOMAIN]: 'https://nvcr.io',
+  ['juju.' + CUSTOM_DOMAIN]: 'https://registry.jujucharms.com',
+  ['l5d.' + CUSTOM_DOMAIN]: 'https://cr.l5d.io',
+  ['rocks.' + CUSTOM_DOMAIN]: 'https://rocks.canonical.com',
 
   // staging
   ["docker-staging." + CUSTOM_DOMAIN]: dockerHub,
@@ -32,6 +42,40 @@ function routeByHosts(host) {
 
 async function handleRequest(request) {
   const url = new URL(request.url);
+
+  if (url.hostname === 'hub.' + CUSTOM_DOMAIN) {
+    /*// 反代 hub.docker.com ，方便用户查找镜像
+    const proxyHostname = 'hub.docker.com'
+    const headers = new Headers(request.headers)
+    headers.set('Host', proxyHostname)
+    const registryUrl = `https://${proxyHostname}` + url.pathname + url.search
+    const registryRequest = new Request(registryUrl, {
+      method: request.method,
+      headers: headers,
+      body: request.body,
+      redirect: 'follow'
+    })
+    return await fetch(registryRequest)*/
+    if (url.pathname === '/') {
+      return new Response(SEARCH, {
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8'
+        }
+      })
+    } else {
+      const newUrl = new URL('https://registry.hub.docker.com' + url.pathname + url.search)
+      const headers = new Headers(request.headers)
+      headers.set('Host', 'registry.hub.docker.com')
+      const newRequest = new Request(newUrl, {
+        method: request.method,
+        headers: headers,
+        body: request.method !== 'GET' && request.method !== 'HEAD' ? await request.blob() : null,
+        redirect: 'follow'
+      })
+      return fetch(newRequest)
+    }
+  }
+
   const upstream = routeByHosts(url.hostname);
   if (upstream === "") {
     return new Response(
@@ -43,6 +87,28 @@ async function handleRequest(request) {
       }
     );
   }
+
+  if (url.pathname === '/') {
+    return new Response(DOCS, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8'
+      }
+    })
+  }
+  if (url.pathname === '/favicon.ico') {
+    const newUrl = new URL('https://hub.docker.com/favicon.ico')
+    const headers = new Headers(request.headers)
+    headers.set('Host', 'hub.docker.com')
+    const newRequest = new Request(newUrl, {
+      method: request.method,
+      headers: headers,
+      body: request.body,
+      redirect: 'follow'
+    })
+    return fetch(newRequest)
+  }
+
   const isDockerHub = upstream == dockerHub;
   const authorization = request.headers.get("Authorization");
   if (url.pathname == "/v2/") {
