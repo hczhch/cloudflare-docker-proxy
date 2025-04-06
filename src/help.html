@@ -242,10 +242,10 @@ sudo systemctl daemon-reload && sudo systemctl restart docker
 docker pull docker.{{host}}/nginx/nginx-ingress:latest  # 拉取 Docker 官方镜像
 docker pull nginx/nginx-ingress:latest  # 在 daemon.json 中配置了加速器地址后
 
-# quay.io/coreos/etcd:latest
+# quay.io/strimzi/operator:latest
 docker pull quay.{{host}}/strimzi/operator:latest
 
-# gcr.io/google-containers/busybox:latest
+# gcr.io/kubeflow-images-public/alpine:latest
 docker pull gcr.{{host}}/kubeflow-images-public/alpine:latest
 
 # k8s.gcr.io/etcd:3.5.7-0
