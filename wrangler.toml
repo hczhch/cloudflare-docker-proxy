@@ -16,15 +16,24 @@ CUSTOM_DOMAIN = "exmaple.com"
 
 [env.production]
 name = "cloudflare-docker-proxy"
-# routes = [
-#   { pattern = "docker.libcuda.so", custom_domain = true },
-#   { pattern = "quay.libcuda.so", custom_domain = true },
-#   { pattern = "gcr.libcuda.so", custom_domain = true },
-#   { pattern = "k8s-gcr.libcuda.so", custom_domain = true },
-#   { pattern = "k8s.libcuda.so", custom_domain = true },
-#   { pattern = "ghcr.libcuda.so", custom_domain = true },
-#   { pattern = "cloudsmith.libcuda.so", custom_domain = true },
-# ]
+# 如果想要手动为 CUSTOM_DOMAIN 添加 DNS 解析记录，请注释或删除掉 route
+routes = [
+  { pattern = "hub.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "docker.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "quay.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "gcr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "k8s-gcr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "k8s.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "ghcr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "cloudsmith.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "ecr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "mcr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "elastic.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "nvcr.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "juju.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "l5d.hczhch.dpdns.org", custom_domain = true },
+  { pattern = "rocks.hczhch.dpdns.org", custom_domain = true },
+]
 
 [env.production.vars]
 MODE = "production"

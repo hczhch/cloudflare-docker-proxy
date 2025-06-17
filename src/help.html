@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docker 镜像加速器</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      line-height: 80px;
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      display: inline;
+    }
+
+    .link {
+      float: right;
+      margin-right: 10px;
+    }
+
+    .link a {
+      padding-left: 5px;
+    }
+
+    .github-icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .content {
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #333;
+      color: #fff;
+    }
+
+    code {
+      font-size: 18px;
+      font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+
+      .header {
+        padding: 15px 0;
+      }
+    }
+
+    table, th, td {
+      border: 1px solid #000000;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px 20px;
+    }
+
+    table tr:nth-child(odd) {
+      background: #F4F4F4;
+    }
+  </style>
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- and it's easy to individually load additional languages -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div class="header">
+  <h1 class="title">Docker 镜像加速器</h1>
+  <span class="link">
+    <a href="https://hub.{{host}}" target="_blank">
+      <img src="https://raw.githubusercontent.com/hczhch/cloudflare-docker-proxy/master/images/docker.svg"
+           alt="Docker Hub" class="github-icon">
+    </a>
+    <a href="https://hczhch.github.io/" target="_blank">
+      <img src="https://hczhch.github.io/img/favicon.ico" alt="Docker Hub" class="github-icon">
+    </a>
+    <a href="https://github.com/hczhch/cloudflare-docker-proxy" target="_blank">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub"
+           class="github-icon">
+    </a>
+  </span>
+</div>
+<div class="container">
+  <div class="content">
+    <p>您可以通过修改配置文件 /etc/docker/daemon.json 来使用加速器。如果 SSL 不是合法有效的证书，则必须配置 insecure-registries 跳过证书验证。具体的加速器配置样例如下：</p>
+    <pre><code class="language-bash">sudo tee /etc/docker/daemon.json &lt;&lt;EOF
+{
+    "registry-mirrors": ["https://docker.{{host}}"],
+    "insecure-registries": ["docker.{{host}}"],
+    "exec-opts": ["native.cgroupdriver=systemd"]
+}
+EOF
+
+# 重启 Docker 服务
+sudo systemctl daemon-reload && sudo systemctl restart docker
+</code></pre>
+
+    <p>目前支持的平台：</p>
+    <table id="supported-platform">
+      <thead>
+      <tr>
+        <th>序号</th>
+        <th>源站</th>
+        <th>替换为</th>
+        <th>平台</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>1</td>
+        <td>docker.io</td>
+        <td>docker.{{host}}</td>
+        <td>Docker Hub</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>quay.io</td>
+        <td>quay.{{host}}</td>
+        <td>Red Hat</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>gcr.io</td>
+        <td>gcr.{{host}}</td>
+        <td>Google</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>k8s.gcr.io</td>
+        <td>k8s-gcr.{{host}}</td>
+        <td>旧 Kubernetes</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>registry.k8s.io</td>
+        <td>k8s.{{host}}</td>
+        <td>新 Kubernetes</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>ghcr.io</td>
+        <td>ghcr.{{host}}</td>
+        <td>GitHub</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>docker.cloudsmith.io</td>
+        <td>cloudsmith.{{host}}</td>
+        <td>Cloudsmith</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>public.ecr.aws</td>
+        <td>ecr.{{host}}</td>
+        <td>Amazon ECR</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>mcr.microsoft.com</td>
+        <td>mcr.{{host}}</td>
+        <td>Microsoft</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>docker.elastic.co</td>
+        <td>elastic.{{host}}</td>
+        <td>Elastic</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>nvcr.io</td>
+        <td>nvcr.{{host}}</td>
+        <td>NVIDIA</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>registry.jujucharms.com</td>
+        <td>juju.{{host}}</td>
+        <td>Juju Charms</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>cr.l5d.io</td>
+        <td>l5d.{{host}}</td>
+        <td>Linkerd</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td>rocks.canonical.com</td>
+        <td>rocks.{{host}}</td>
+        <td>Rocks</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <p>使用示例：</p>
+    <pre><code class="language-bash"># nginx/nginx-ingress:latest
+docker pull docker.{{host}}/nginx/nginx-ingress:latest  # 拉取 Docker 官方镜像
+docker pull nginx/nginx-ingress:latest  # 在 daemon.json 中配置了加速器地址后
+
+# quay.io/strimzi/operator:latest
+docker pull quay.{{host}}/strimzi/operator:latest
+
+# gcr.io/kubeflow-images-public/alpine:latest
+docker pull gcr.{{host}}/kubeflow-images-public/alpine:latest
+
+# k8s.gcr.io/etcd:3.5.7-0
+docker pull k8s-gcr.{{host}}/etcd:3.5.7-0
+
+# registry.k8s.io/kube-apiserver:v1.30.0
+docker pull k8s.{{host}}/kube-apiserver:v1.30.0
+
+# ghcr.io/openfaas/queue-worker:latest
+docker pull ghcr.{{host}}/openfaas/queue-worker:latest
+
+# docker.cloudsmith.io/convoy/convoy/frain-dev/convoy:latest
+docker pull cloudsmith.{{host}}/convoy/convoy/frain-dev/convoy:latest
+
+# public.ecr.aws/docker/library/alpine:latest
+docker pull ecr.{{host}}/docker/library/alpine:latest
+
+# mcr.microsoft.com/powershell
+docker pull mcr.{{host}}/powershell
+
+# docker.elastic.co/elasticsearch/elasticsearch:8.1.0
+docker pull elastic.{{host}}/elasticsearch/elasticsearch:8.1.0
+
+# nvcr.io/nvidia/cuda:12.1.0-runtime-ubuntu20.04
+docker pull nvcr.{{host}}/nvidia/cuda:12.1.0-runtime-ubuntu20.04
+</code></pre>
+    <p>Cloudflare 免费套餐限制每天最多 100,000 个请求，请合理使用此镜像加速器。</p>
+  </div>
+</div>
+<div id="footer" class="footer">
+  <p>Powered by Cloudflare Workers</p>
+  <p>Copyright © {{year}} <a href="https://hczhch.github.io" target="_blank">Vito</a></p>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const host = window.location.hostname
+    const mainDomain = host.split('.').slice(1).join('.')
+    document.body.innerHTML = document.body.innerHTML.replace(/{{host}}/g, mainDomain)
+    document.getElementById('footer').innerHTML = document.getElementById('footer').innerHTML.replace(/{{year}}/g, '' + (new Date()).getFullYear())
+  })
+</script>
+</body>
+</html>
