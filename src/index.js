@@ -76,7 +76,7 @@ async function handleRequest(request) {
     }
   }
 
-  if (url.pathname === '/') {
+  if (url.pathname === '/help.html') {
     return new Response(DOCS, {
       status: 200,
       headers: {
@@ -97,6 +97,9 @@ async function handleRequest(request) {
     return fetch(newRequest)
   }
 
+  if (url.pathname == "/") {
+    return Response.redirect(url.protocol + "//" + url.host + "/v2/", 301);
+  }
   const upstream = routeByHosts(url.hostname);
   if (upstream === "") {
     return new Response(
