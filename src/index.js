@@ -76,14 +76,6 @@ async function handleRequest(request) {
     }
   }
 
-  if (url.pathname === '/help.html') {
-    return new Response(DOCS, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/html; charset=UTF-8'
-      }
-    })
-  }
   if (url.pathname === '/favicon.ico') {
     const newUrl = new URL('https://hub.docker.com/favicon.ico')
     const headers = new Headers(request.headers)
@@ -98,7 +90,13 @@ async function handleRequest(request) {
   }
 
   if (url.pathname == "/") {
-    return Response.redirect(url.protocol + "//" + url.host + "/v2/", 301);
+    //return Response.redirect(url.protocol + "//" + url.host + "/v2/", 301);
+    return new Response(DOCS, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8'
+      }
+    })
   }
   const upstream = routeByHosts(url.hostname);
   if (upstream === "") {
